@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Digital Literacy Chatbot</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+      /* Reset and base */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        background-color: #ffffff;
+        color: #6b7280;
+        font-size: 18px;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+      }
+      /* Container with max width */
+      .container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+      }
+      /* Header */
+      header {
+        position: sticky;
+        top: 0;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+      }
+      .navbar {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+      }
+      .logo {
+        font-weight: 700;
+        font-size: 2rem;
+        color: #111827;
+        user-select: none;
+      }
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        padding: 0;
+        margin: 0;
+      }
+      nav ul li a {
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      nav ul li a:hover,
+      nav ul li a:focus {
+        background-color: #4f46e5;
+        color: white;
+        outline: none;
+      }
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+      }
+      .hero h1 {
+        font-size: 3.5rem;
+        color: #111827;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        user-select: none;
+      }
+      .hero p {
+        max-width: 640px;
+        margin: 0 auto;
+        color: #4b5563;
+        font-weight: 500;
+        font-size: 1.125rem;
+        line-height: 1.5;
+        user-select: none;
+      }
+      .hero button {
+        margin-top: 2rem;
+        background-color: #111827;
+        color: white;
+        border: none;
+        padding: 1rem 3rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        user-select: none;
+      }
+      .hero button:hover,
+      .hero button:focus {
+        background-color: #4f46e5;
+        outline: none;
+      }
+      /* Chat container */
+      .chat-container {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 15px rgb(0 0 0 / 0.08);
+        max-width: 800px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        height: 520px;
+      }
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+        background: #f9fafb;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        font-size: 1rem;
+        line-height: 1.45;
+      }
+      .message {
+        max-width: 60%;
+        padding: 0.6rem 1rem;
+        border-radius: 1.2rem;
+        font-weight: 500;
+        word-wrap: break-word;
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+        transition: box-shadow 0.3s ease;
+        user-select: text;
+        line-height: 1.3;
+        font-size: 0.95rem;
+      }
+      .message.user {
+        background-color: #4f46e5;
+        color: white;
+        align-self: flex-end;
+      }
+      .message.bot {
+        background-color: #e0e7ff;
+        color: #1e293b;
+        align-self: flex-start;
+      }
+      /* Input area */
+      .chat-input-area {
+        display: flex;
+        padding: 1.5rem 2rem;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+        gap: 1rem;
+      }
+      #chat-input {
+        flex-grow: 1;
+        font-size: 1.125rem;
+        padding: 0.75rem 1rem;
+        border-radius: 9999px;
+        border: 1px solid #d1d5db;
+        outline-offset: 2px;
+        transition: border-color 0.3s ease;
+      }
+      #chat-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+        outline: none;
+      }
+      button#send-btn {
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 9999px;
+        padding: 0 2rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      button#send-btn:hover,
+      button#send-btn:focus {
+        background-color: #3730a3;
+        outline: none;
+      }
+      button#send-btn:disabled {
+        background-color: #a5b4fc;
+        cursor: not-allowed;
+      }
+      /* Spinner for loading */
+      .spinner {
+        border: 4px solid #e0e7ff;
+        border-top: 4px solid #4f46e5;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        margin-left: 0.5rem;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* Quick prompt styles */
+      .quick-prompts {
+        display: flex;
+        gap: 0.5rem;
+        margin: 0.5rem 1rem;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .prompt-btn {
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background-color 0.2s;
+        flex: 0 0 auto;
+      }
+      .prompt-btn:hover {
+        background-color: #3730a3;
+      }
+      /* Responsive adjustments */
+      @media (max-width: 640px) {
+        body {
+          padding: 1rem;
+          font-size: 16px;
+        }
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+        .hero p {
+          font-size: 1rem;
+        }
+        .chat-container {
+          height: 400px;
+        }
+        .chat-input-area {
+          padding: 1rem;
+          gap: 0.5rem;
+        }
+        #chat-input {
+          font-size: 1rem;
+          padding: 0.6rem 0.75rem;
+        }
+        button#send-btn {
+          padding: 0 1rem;
+          font-size: 1rem;
+        }
+        .prompt-btn {
+          font-size: 0.85rem;
+          padding: 0.4rem 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header role="banner">
+      <nav class="navbar" role="navigation" aria-label="Primary Navigation">
+        <div class="logo" tabindex="0">Digital Literacy Chatbot</div>
+        <ul role="list" aria-label="Primary navigation links" style="display:flex; gap:1.25rem; list-style:none; margin:0; padding:0;">
+          <li><a href="#chat" tabindex="0">Chat</a></li>
+          <li><a href="https://digitalindia.gov.in/" target="_blank" rel="noopener" tabindex="0">Digital India</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main class="container" role="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">Learn to Use Digital Tools Easily</h1>
+        <p>Get instant help on WhatsApp, Paytm, Google Maps, & more with our friendly Digital Literacy Chatbot.</p>
+        <button type="button" onclick="document.getElementById('chat-input').focus()">Get Started</button>
+      </section>
+      <section class="chat-container" aria-label="Chat conversation interface" id="chat" tabindex="0">
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <!-- Quick prompts section with horizontal scrolling -->
+        <div class="quick-prompts" id="quick-prompts">
+          <button class="prompt-btn">Hi</button>
+          <button class="prompt-btn">How do I send a photo?</button>
+          <button class="prompt-btn">What is Google Pay?</button>
+          <button class="prompt-btn">Tell me about Digital India</button>
+          <button class="prompt-btn">How to pay bills with Paytm?</button>
+          <button class="prompt-btn">How do I use Google Maps?</button>
+          <button class="prompt-btn">How do I access the internet?</button>
+          <button class="prompt-btn">How to browse websites?</button>
+          <!-- Add more prompts as needed -->
+        </div>
+        <form class="chat-input-area" id="chat-form" aria-label="Send message form">
+          <input type="text" id="chat-input" aria-label="Type your message here" placeholder="Type your question..." autocomplete="off" required spellcheck="false" autocorrect="off" />
+          <button type="submit" id="send-btn" aria-label="Send message">Send</button>
+        </form>
+      </section>
+    </main>
+    <script>
+      (function() {
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const quickPrompts = document.getElementById('quick-prompts');
+
+        // Use the absolute URL pointing to your backend
+        const BACKEND_URL = 'http://127.0.0.1:5000/chat';
+
+        // Hard-coded FAQs (keywords and details)
+        const faqs = {
+          "photo": "To send a photo on WhatsApp:\n1. Open the chat with your friend.\n2. Tap the attachment icon (paper clip).\n3. Select 'Gallery' or 'Camera'.\n4. Choose or take a photo.\n5. Tap the send button.",
+          "whatsapp": "WhatsApp lets you exchange messages, photos, and videos. Simply open the app, select a contact, and use the attachment icon to send media.",
+          "google pay": "Google Pay is a secure payment app. It lets you send/receive money, pay bills, and shop online. Open the app, enter the recipient's details, and follow on-screen instructions.",
+          "paytm": "To use Paytm:\n1. Download and open the Paytm app.\n2. Register or log in.\n3. Add money to your Paytm wallet.\n4. Use it for recharges, bill payments, and more.",
+          "maps": "Using Google Maps:\n1. Open the Google Maps app.\n2. Enter your destination in the search bar.\n3. Tap ‘Directions’ and select your transportation mode.\n4. Follow the displayed route.",
+          "digital india": "Digital India is an initiative by the Government of India to transform the country into a digitally empowered society. It covers digital infrastructure, literacy, and services.",
+          "internet": "The internet is a global network that connects millions of networks, allowing them to communicate and share data.",
+          "browser": "A web browser like Chrome, Firefox, or Edge is used to access websites and online services. Simply enter a URL into the address bar."
+        };
+
+        // Greeting keywords and response
+        const greetings = [
+          "hi", "hello", "hey", "greetings", "good morning", "good afternoon", "good evening"
+        ];
+        const greetingResponse = "Hello there! Welcome to the Digital Literacy Chatbot. How can I help you today?";
+
+        function appendMessage(content, sender) {
+          const msg = document.createElement('div');
+          msg.className = 'message ' + (sender === 'user' ? 'user' : 'bot');
+          if (sender === 'bot') {
+            msg.innerHTML = content.replace(/\n/g, "<br>");
+          } else {
+            msg.textContent = content;
+          }
+          chatMessages.appendChild(msg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function setLoading(loading) {
+          if (loading) {
+            sendBtn.disabled = true;
+            if (!document.querySelector('.spinner')) {
+              const spinner = document.createElement('span');
+              spinner.className = 'spinner';
+              sendBtn.appendChild(spinner);
+            }
+          } else {
+            sendBtn.disabled = false;
+            const spinner = document.querySelector('.spinner');
+            if (spinner) spinner.remove();
+          }
+        }
+
+        async function sendMessageToBackend(message) {
+          setLoading(true);
+          try {
+            const response = await fetch(BACKEND_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message })
+            });
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            console.log("Backend response:", data);
+            return data.reply || "Sorry, I couldn't get a response.";
+          } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
+          } finally {
+            setLoading(false);
+          }
+        }
+
+        // When user clicks a quick prompt, send its text as if user had typed it
+        quickPrompts.addEventListener('click', e => {
+          if (e.target && e.target.matches('.prompt-btn')) {
+            const promptText = e.target.textContent;
+            appendMessage(promptText, 'user');
+            chatInput.value = '';
+            processMessage(promptText);
+          }
+        });
+
+        // Process message: check greeting, FAQs, then backend
+        async function processMessage(message) {
+          let lowerMessage = message.toLowerCase();
+          if (greetings.some(word => lowerMessage.includes(word))) {
+            appendMessage(greetingResponse, 'bot');
+            return;
+          }
+          let found = false;
+          for (const key in faqs) {
+            if (lowerMessage.includes(key)) {
+              appendMessage(faqs[key], 'bot');
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            const reply = await sendMessageToBackend(message);
+            if (reply) {
+              appendMessage(reply, 'bot');
+            } else {
+              appendMessage("I'm having trouble responding right now. Please try again later.", 'bot');
+            }
+          }
+        }
+
+        // Listen for form submission
+        chatForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          const message = chatInput.value.trim();
+          if (!message) return;
+          appendMessage(message, 'user');
+          chatInput.value = '';
+          processMessage(message);
+        });
+
+        // Focus input when page loads
+        window.addEventListener('load', () => {
+          chatInput.focus();
+        });
+      })();
+    </script>
+  </body>
+</html>
